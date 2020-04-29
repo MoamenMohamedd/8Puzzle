@@ -1,0 +1,47 @@
+.form {
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-evenly;
+}
+
+.label {
+  margin-right: 20px;
+  color: rgb(112, 76, 182);
+}
+
+.board-size {
+  text-align: center;
+  width: 30px;
+}
+
+.board-input {
+  width: fit-content;
+}
+
+.button {
+  appearance: none;
+  background: none;
+  outline: none;
+  font-size: 32px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-bottom: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 2px solid transparent;
+  border-radius: 6px;
+
+  background-color: rgba(112, 76, 182, 0.1);
+  color: rgb(112, 76, 182);
+}
+
+.button:hover,
+.button:focus {
+  border: 2px solid rgba(112, 76, 182, 0.4);
+}
+
+.error {
+  color: crimson;
+}

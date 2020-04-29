@@ -1,8 +1,12 @@
-import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from '../features/counter/counterSlice';
+import { configureStore, applyMiddleware } from "@reduxjs/toolkit";
+import boardReducer from "../features/board/boardSlice";
+import inputReducer from "../features/input/inputSlice";
+import logger from "redux-logger";
 
 export default configureStore({
   reducer: {
-    counter: counterReducer,
+    board: boardReducer,
+    input: inputReducer,
   },
+  enhancers: [applyMiddleware(logger)],
 });
