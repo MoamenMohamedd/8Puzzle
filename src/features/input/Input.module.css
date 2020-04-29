@@ -1,9 +1,9 @@
 .form {
-  height: 200px;
+  height: 300px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-evenly;
+  align-items: baseline;
+  justify-content: space-around;
 }
 
 .label {
@@ -14,13 +14,41 @@
 .board-size {
   text-align: center;
   width: 30px;
+  padding: 4px 22px;
+  margin: 10px 5px;
+  border: solid 2px rgb(112, 76, 182);
+  border-radius: 4px;
+  color: rgb(112, 76, 182);
 }
 
 .board-input {
   width: fit-content;
+  padding: 4px 22px;
+  margin: 10px 5px;
+  border: solid 2px rgb(112, 76, 182);
+  border-radius: 4px;
+  color: rgb(112, 76, 182);
+}
+
+.board-algorithm {
+  color: rgb(112, 76, 182);
+  padding: 4px;
+  margin: 0;
+  border: 2px solid rgb(112, 76, 182);
+  border-radius: 4px;
+  /* -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none; */
+  background-color: white;
+}
+
+.board-algorithm-option {
+  background-color: rgba(112, 76, 182, 0.4);
+  color: rgb(112, 76, 182);
 }
 
 .button {
+  margin-top: 30px;
   appearance: none;
   background: none;
   outline: none;
@@ -32,6 +60,7 @@
   transition: all 0.15s;
   border: 2px solid transparent;
   border-radius: 6px;
+  align-self: center;
 
   background-color: rgba(112, 76, 182, 0.1);
   color: rgb(112, 76, 182);

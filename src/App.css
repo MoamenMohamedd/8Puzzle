@@ -13,12 +13,22 @@
   }
 }
 
-.App-header {
-  min-height: 100vh;
+.h1 {
+  color: rgb(112, 76, 182);
+}
+
+.App-left {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+.App-header {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
   font-size: calc(10px + 2vmin);
 }
 

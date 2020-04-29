@@ -138,10 +138,19 @@ export function Input() {
             as="select"
             className={styles["board-algorithm"]}
           >
-            <option value=""></option>
-            <option value="bfs">BFS</option>
-            <option value="dfs">DFS</option>
-            <option value="ast">A star</option>
+            <option
+              className={styles["board-algorithm-option"]}
+              value=""
+            ></option>
+            <option className={styles["board-algorithm-option"]} value="bfs">
+              BFS
+            </option>
+            <option className={styles["board-algorithm-option"]} value="dfs">
+              DFS
+            </option>
+            <option className={styles["board-algorithm-option"]} value="ast">
+              A star
+            </option>
           </Field>
         </div>
         <ErrorMessage

@@ -7,10 +7,13 @@ import "./App.css";
 function App() {
   return (
     <div className="App">
+      <h1 className="h1">8Puzzle</h1>
       <header className="App-header">
-        <Board />
-        <Controls />
         <Input />
+        <div className="App-left">
+          <Board />
+          <Controls />
+        </div>
       </header>
     </div>
   );

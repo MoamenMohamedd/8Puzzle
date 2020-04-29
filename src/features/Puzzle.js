@@ -3,13 +3,13 @@ export default class Puzzle {
 
   expand() {}
 
-  moveUp(params) {}
+  moveUp() {}
 
-  moveDown(params) {}
+  moveDown() {}
 
-  moveRight(params) {}
+  moveRight() {}
 
-  moveLeft(params) {}
+  moveLeft() {}
 
   bfs() {}
 
@@ -18,6 +18,8 @@ export default class Puzzle {
   ast() {}
 
   manhattanDist() {}
+
+  euclideanDist() {}
 
   getPath() {}
 
