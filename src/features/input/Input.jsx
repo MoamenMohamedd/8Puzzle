@@ -5,6 +5,8 @@ import {
   selectInput,
   selectBoardSize,
   selectAlgorithm,
+  selectGoal,
+  selectHeuristic,
 } from "./inputSlice";
 import { runFinished } from "../board/boardSlice";
 import Puzzle from "../Puzzle";
@@ -14,8 +16,10 @@ import * as Yup from "yup";
 
 export function Input() {
   const input = useSelector(selectInput);
+  const goal = useSelector(selectGoal);
   const boardSize = useSelector(selectBoardSize);
   const algorithm = useSelector(selectAlgorithm);
+  const heuristic = useSelector(selectHeuristic);
   const dispatch = useDispatch();
 
   return (
@@ -24,6 +28,8 @@ export function Input() {
         boardSize,
         algorithm,
         input,
+        goal,
+        heuristic,
       }}
       validationSchema={Yup.object({
         boardSize: Yup.number()
@@ -34,7 +40,37 @@ export function Input() {
         algorithm: Yup.string()
           .oneOf(["bfs", "dfs", "ast"], "Please choose an algorithm")
           .required("Required"),
+        heuristic: Yup.mixed().when("algorithm", {
+          is: "ast",
+          then: Yup.string().oneOf(["manhattan", "euclidean"]).required(),
+        }),
         input: Yup.array()
+          .transform(function (value, originalValue) {
+            if (this.isType(originalValue) && originalValue) {
+              return originalValue;
+            }
+
+            return originalValue ? toArray(originalValue) : [];
+          })
+          .of(Yup.number("Invalid number").integer().min(0))
+          .test("isValidArrangement", "Arrangement is not valid", function (
+            value
+          ) {
+            const numOfElements = Math.pow(
+              this.resolve(Yup.ref("boardSize")),
+              2
+            );
+
+            if (value.length !== numOfElements) return false;
+
+            for (let i = 0; i < numOfElements; i++) {
+              if (value.indexOf(i) === -1) return false;
+            }
+
+            return true;
+          })
+          .required("Required"),
+        goal: Yup.array()
           .transform(function (value, originalValue) {
             if (this.isType(originalValue) && originalValue) {
               return originalValue;
@@ -63,43 +99,55 @@ export function Input() {
       })}
       onSubmit={(values, { setSubmitting }) => {
         values.input = toArray(values.input);
+        values.goal = toArray(values.goal);
 
         dispatch(runStarted(values));
 
-        // Call algorithm
-        const puzzle = new Puzzle(
-          values.boardSize,
-          values.input,
-          values.algorithm
-        );
+        new Promise((resolve, reject) => {
+          let puzzle = new Puzzle(
+            values.boardSize,
+            values.input,
+            undefined,
+            values.goal,
+            0
+          );
 
-        // const steps = puzzle.getPath();
+          const t0 = performance.now();
+          switch (values.algorithm) {
+            case "dfs":
+              puzzle = puzzle.dfs();
+              break;
+            case "bfs":
+              puzzle = puzzle.bfs();
+              break;
+            case "ast":
+              puzzle = puzzle.ast(values.heuristic);
+              break;
 
-        const steps = [
-          {
-            arrangement: ["1", "4", "0", "5", "2", "7", "3", "8", "6"],
-            spaceRow: 0,
-            spaceCol: 2,
-          },
-          {
-            arrangement: ["1", "4", "0", "5", "2", "3", "7", "8", "6"],
-            spaceRow: 0,
-            spaceCol: 2,
-          },
-          {
-            arrangement: ["1", "4", "0", "5", "2", "3", "8", "7", "6"],
-            spaceRow: 0,
-            spaceCol: 2,
-          },
-          {
-            arrangement: ["1", "4", "0", "5", "2", "3", "8", "6", "7"],
-            spaceRow: 0,
-            spaceCol: 2,
-          },
-        ];
+            default:
+              break;
+          }
+          const t1 = performance.now();
 
-        dispatch(runFinished({ steps }));
-        setSubmitting(false);
+          const runningTime = t1 - t0;
+          const path = puzzle.getPath();
+          path.pop();
+          const expanded = puzzle.getExpanded();
+          const searchCost = puzzle.getTotalCost();
+          const searchDepth = puzzle.getDepth();
+
+          resolve({
+            runningTime,
+            steps: path,
+            expanded,
+            searchCost,
+            searchDepth,
+            numExpanded: expanded.length,
+          });
+        }).then((results) => {
+          dispatch(runFinished(results));
+          setSubmitting(false);
+        });
       }}
     >
       <Form className={styles.form}>
@@ -118,6 +166,7 @@ export function Input() {
           component="div"
           className={styles.error}
         />
+
         <div>
           <label
             htmlFor="input"
@@ -126,9 +175,30 @@ export function Input() {
           >
             Input
           </label>
-          <Field name="input" type="text" className={styles["board-input"]} />
+          <Field
+            name="input"
+            type="text"
+            className={styles["board-arrangement"]}
+          />
         </div>
         <ErrorMessage name="input" component="div" className={styles.error} />
+
+        <div>
+          <label
+            htmlFor="goal"
+            placeholder="Comma separated"
+            className={styles.label}
+          >
+            Goal
+          </label>
+          <Field
+            name="goal"
+            type="text"
+            className={styles["board-arrangement"]}
+          />
+        </div>
+        <ErrorMessage name="goal" component="div" className={styles.error} />
+
         <div>
           <label htmlFor="algorithm" className={styles.label}>
             Algorithm
@@ -136,19 +206,16 @@ export function Input() {
           <Field
             name="algorithm"
             as="select"
-            className={styles["board-algorithm"]}
+            className={styles["board-select"]}
           >
-            <option
-              className={styles["board-algorithm-option"]}
-              value=""
-            ></option>
-            <option className={styles["board-algorithm-option"]} value="bfs">
+            <option className={styles["board-select-option"]} value=""></option>
+            <option className={styles["board-select-option"]} value="bfs">
               BFS
             </option>
-            <option className={styles["board-algorithm-option"]} value="dfs">
+            <option className={styles["board-select-option"]} value="dfs">
               DFS
             </option>
-            <option className={styles["board-algorithm-option"]} value="ast">
+            <option className={styles["board-select-option"]} value="ast">
               A star
             </option>
           </Field>
@@ -158,6 +225,43 @@ export function Input() {
           component="div"
           className={styles.error}
         />
+        {true && (
+          <div>
+            <label htmlFor="heuristic" className={styles.label}>
+              Heuristic
+            </label>
+            <Field
+              name="heuristic"
+              as="select"
+              className={styles["board-select"]}
+            >
+              <option
+                className={styles["board-select-option"]}
+                value=""
+              ></option>
+              <option
+                className={styles["board-select-option"]}
+                value="manhattan"
+              >
+                Manhattan
+              </option>
+              <option
+                className={styles["board-select-option"]}
+                value="euclidean"
+              >
+                Euclidean
+              </option>
+            </Field>
+          </div>
+        )}
+        {true && (
+          <ErrorMessage
+            name="heuristic"
+            component="div"
+            className={styles.error}
+          />
+        )}
+
         <button type="submit" className={styles.button}>
           Run
         </button>

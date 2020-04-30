@@ -2,13 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 import { runStarted } from "../input/inputSlice";
 
 const initialState = {
-  present: {
-    arrangement: [],
-    spaceRow: -1,
-    spaceCol: -1,
-  },
-  past: [],
-  future: [],
+  present: [], // array
+  past: [], // array of array
+  future: [], // array of array
 };
 
 export const boardSlice = createSlice({
@@ -40,18 +36,12 @@ export const boardSlice = createSlice({
     [runStarted]: (state, action) => {
       state.past = [];
       state.future = [];
-
-      state.present.arrangement = action.payload.input;
-      const n = Number(action.payload.boardSize);
-      const indexOfZero = action.payload.input.indexOf("0");
-
-      state.present.spaceRow = indexOfZero / n;
-      state.present.spaceCol = indexOfZero % n;
+      state.present = action.payload.input;
     },
   },
 });
 
-export const selectArrangement = (state) => state.board.present.arrangement;
+export const selectArrangement = (state) => state.board.present;
 
 export const selectHaveNext = (state) => state.board.future.length > 0;
 
