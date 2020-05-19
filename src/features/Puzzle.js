@@ -15,10 +15,22 @@ export default class Puzzle {
     this.depth = depth;
   }
 
+  /**
+   * Returns index of a cell in current arrangement
+   * as well as goal arrangement
+   *
+   * @param {*} num
+   */
   getIndex(num) {
     return [this.arrangement.indexOf(num), this.target.indexOf(num)];
   }
 
+  /**
+   * Returns row index of a cell in current arrangement
+   * as well as goal arrangement
+   *
+   * @param {*} num
+   */
   getRow(num) {
     const n = Number(this.boardSize);
     const indexOfZero = this.getIndex(num);
@@ -28,6 +40,13 @@ export default class Puzzle {
       Number.parseInt(indexOfZero[1] / n),
     ];
   }
+
+  /**
+   * Returns column index of a cell in current arrangement
+   * as well as goal arrangement
+   *
+   * @param {*} num
+   */
   getCol(num) {
     const n = Number(this.boardSize);
     const indexOfZero = this.getIndex(num);
@@ -38,6 +57,9 @@ export default class Puzzle {
     ];
   }
 
+  /**
+   * Returns children puzzle states of the current puzzle state
+   */
   expand() {
     let children = [];
 
@@ -143,21 +165,19 @@ export default class Puzzle {
   }
 
   print() {
-    console.log("-".repeat(this.boardSize * 2 + 5));
-
-    for (let i = 0; i < this.boardSize; i++) {
-      let row = "";
-      row += "|";
-      for (let j = 0; j < this.boardSize; j++) {
-        row += " ";
-        row += this.arrangement[i * this.boardSize + j];
-        row += " ";
-      }
-      row += "|";
-      console.log(row);
-    }
-
-    console.log("-".repeat(this.boardSize * 2 + 5));
+    // console.log("-".repeat(this.boardSize * 2 + 5));
+    // for (let i = 0; i < this.boardSize; i++) {
+    //   let row = "";
+    //   row += "|";
+    //   for (let j = 0; j < this.boardSize; j++) {
+    //     row += " ";
+    //     row += this.arrangement[i * this.boardSize + j];
+    //     row += " ";
+    //   }
+    //   row += "|";
+    //   console.log(row);
+    // }
+    // console.log("-".repeat(this.boardSize * 2 + 5));
   }
 
   hash() {
@@ -171,13 +191,14 @@ export default class Puzzle {
     stack.push(this);
     while (stack.length !== 0) {
       let currentPuzzle = stack.pop();
+
       console.log("Expanding");
       currentPuzzle.print();
+
       visited[currentPuzzle.hash()] = currentPuzzle;
 
       if (currentPuzzle.isGoalState()) {
         // Reached goal state
-
         currentPuzzle.expanded = Object.values(visited).map(
           (v) => v.arrangement
         );
@@ -199,13 +220,14 @@ export default class Puzzle {
     queue.unshift(this);
     while (queue.length !== 0) {
       let currentPuzzle = queue.pop();
+
       console.log("Expanding");
       currentPuzzle.print();
+
       visited[currentPuzzle.hash()] = currentPuzzle;
 
       if (currentPuzzle.isGoalState()) {
         // Reached goal state
-
         currentPuzzle.expanded = Object.values(visited).map(
           (v) => v.arrangement
         );
@@ -222,6 +244,7 @@ export default class Puzzle {
 
   ast(heuristic) {
     const pq = new PriorityQueue({
+      // Order by total cost = heuristic cost + current state cost ascendingly
       comparator: function (p1, p2) {
         const cost1 = p1.depth + p1.heuristicCost(heuristic);
         const cost2 = p2.depth + p2.heuristicCost(heuristic);
@@ -241,7 +264,6 @@ export default class Puzzle {
 
       if (currentPuzzle.isGoalState()) {
         // Reached goal state
-
         currentPuzzle.expanded = Object.values(visited).map(
           (v) => v.arrangement
         );

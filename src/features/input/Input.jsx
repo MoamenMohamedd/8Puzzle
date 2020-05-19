@@ -103,15 +103,15 @@ export function Input() {
 
         dispatch(runStarted(values));
 
-        new Promise((resolve, reject) => {
-          let puzzle = new Puzzle(
-            values.boardSize,
-            values.input,
-            undefined,
-            values.goal,
-            0
-          );
+        let puzzle = new Puzzle(
+          values.boardSize,
+          values.input,
+          undefined,
+          values.goal,
+          0
+        );
 
+        const solve = (puzzle) => {
           const t0 = performance.now();
           switch (values.algorithm) {
             case "dfs":
@@ -136,18 +136,26 @@ export function Input() {
           const searchCost = puzzle.getTotalCost();
           const searchDepth = puzzle.getDepth();
 
-          resolve({
+          const results = {
             runningTime,
             steps: path,
             expanded,
             searchCost,
             searchDepth,
             numExpanded: expanded.length,
-          });
-        }).then((results) => {
+          };
+
           dispatch(runFinished(results));
           setSubmitting(false);
-        });
+        };
+
+        if ("requestIdleCallback" in window) {
+          // requestIdleCallback supported
+          requestIdleCallback(solve(puzzle));
+        } else {
+          // no support - do something else
+          setTimeout(solve(puzzle), 1);
+        }
       }}
     >
       <Form className={styles.form}>
